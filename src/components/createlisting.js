@@ -1,18 +1,52 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addDoc, collection } from "firebase/firestore";
-import { db, storage } from "../firebaseconfig.js"; // Adjust the path if needed
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from "../firebaseconfig.js"; // Adjust the path if needed
 import { fetchListingsStart, fetchListingsSuccess } from "../Redux/slices/listingslices.js";
+
+// Define categories array (30 predefined categories)
+const categories = [
+  "Electronics",
+  "Furniture",
+  "Fashion",
+  "Toys & Games",
+  "Sports & Outdoors",
+  "Books",
+  "Beauty & Health",
+  "Automotive",
+  "Jewelry & Watches",
+  "Art & Collectibles",
+  "Home Appliances",
+  "Food & Beverage",
+  "Pet Supplies",
+  "Tools & Home Improvement",
+  "Groceries",
+  "Music & Instruments",
+  "Movies, Music & Games",
+  "Video Games & Consoles",
+  "Laptops & Computers",
+  "Mobile Phones & Accessories",
+  "Camera & Photography",
+  "Outdoor Gear & Equipment",
+  "Bicycles & Accessories",
+  "Gaming Consoles & Accessories",
+  "Smart Home Devices",
+  "Baby & Kids",
+  "Garden & Outdoor",
+  "Health & Personal Care",
+  "Musical Instruments & Gear",
+  "Hobbies & Crafts"
+];
 
 const CreateListing = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [imageFile, setImageFile] = useState(null);  // Handle image file state
+  const [category, setCategory] = useState(""); // New category state
+  const [imageFile, setImageFile] = useState(null); // Handle image file state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const dispatch = useDispatch();
 
   // Handle image file change (image upload)
@@ -29,7 +63,7 @@ const CreateListing = () => {
     setError(null);
 
     // Validate fields
-    if (!title || !description || !price || !imageFile) {
+    if (!title || !description || !price || !category || !imageFile) {
       setError("All fields are required.");
       setLoading(false);
       return;
@@ -41,33 +75,43 @@ const CreateListing = () => {
       return;
     }
 
-    // Create a storage reference and upload the file
-    const imageRef = ref(storage, `images/${imageFile.name}`);
-    try {
-      // Upload the file to Firebase Storage
-      const snapshot = await uploadBytes(imageRef, imageFile);
-      const downloadURL = await getDownloadURL(snapshot.ref);  // Get the image URL
+    // Convert image to Base64
+    const convertImageToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    };
 
-      // Now add the listing to Firestore
+    try {
+      // Convert image to Base64 string
+      const base64Image = await convertImageToBase64(imageFile);
+
+      // Prepare the new listing object with Base64 image
       const newListing = {
         title,
         description,
         price: parseFloat(price),
-        imageUrl: downloadURL,  // Use the uploaded image URL
+        category,
+        imageBase64: base64Image, // Store the Base64 image string here
       };
 
-      // Add to Firestore
+      // Add the listing to Firestore
       await addDoc(collection(db, "Listings"), newListing);
 
       // Dispatch action to update the Redux store
       dispatch(fetchListingsStart());
-      dispatch(fetchListingsSuccess([newListing]));  // Assuming you're adding the listing directly
+      dispatch(fetchListingsSuccess([newListing]));
 
+      // Reset the form and state
       setLoading(false);
       setTitle("");
       setDescription("");
       setPrice("");
-      setImageFile(null);  // Clear the image file
+      setCategory("");
+      setImageFile(null);
       alert("Listing created successfully!");
     } catch (err) {
       setLoading(false);
@@ -105,6 +149,21 @@ const CreateListing = () => {
             onChange={(e) => setPrice(e.target.value)}
             required
           />
+        </div>
+        <div>
+          <label>Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat, index) => (
+              <option key={index} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label>Image</label>
