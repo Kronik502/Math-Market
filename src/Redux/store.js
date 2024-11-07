@@ -1,14 +1,15 @@
 // src/Redux/store.js
 
 import { configureStore } from '@reduxjs/toolkit';
-import listingsReducer from './slices/listingslices.js'; // Ensure the path and extension are correct
-import userReducer from './slices/userslice.js'; // Ensure this path is correct and userSlice exists
+import listingsReducer from './slices/listingslices.js'; // Make sure the path is correct
+import userReducer from './slices/userslice.js'; // Make sure the path is correct
+import { cartReducer } from '../Redux/cartReducer.js'; // Import the cartReducer
 
 const store = configureStore({
   reducer: {
     listings: listingsReducer,
-    user: userReducer, // This should be properly defined in your userslice.js
-    // Add other reducers here if you have them
+    user: userReducer, // Your user slice
+    cart: cartReducer, // Add the cart reducer here
   },
 });
 

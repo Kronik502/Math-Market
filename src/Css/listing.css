@@ -1,192 +1,201 @@
 /* listing.css */
 
-/* Overall Layout */
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f4f7f6;
-    margin: 0;
-    padding: 0;
+/* Container for the entire listing component */
+.listing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  font-family: 'Roboto', sans-serif;
+  color: #2c3e50;
+}
+
+/* Title Styling */
+.listing-container h2 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #34495e;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Styling for each listing */
+.listing-item {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.listing-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect for images */
+.listing-item img {
+  width: 10%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.listing-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Styling for title of each listing */
+.listing-item h3 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+
+/* Description, Price, Category */
+.listing-item p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #7f8c8d;
+}
+
+.listing-item .price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.listing-item .category {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #3498db;
+}
+
+/* Buttons */
+.listing-item button {
+  background-color: #1abc9c;
+  color: #fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  margin-right: 12px;
+  margin-top: 10px;
+}
+
+.listing-item button:hover {
+  background-color: #16a085;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Edit Form */
+.edit-form {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 650px;
+  margin: 30px auto;
+}
+
+.edit-form h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+/* Form Inputs */
+.edit-form input, .edit-form textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  color: #34495e;
+  background-color: #ecf0f1;
+  transition: border 0.3s ease;
+}
+
+.edit-form input:focus, .edit-form textarea:focus {
+  border: 1px solid #1abc9c;
+  outline: none;
+}
+
+/* Edit form Buttons */
+.edit-form button {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 10px;
+}
+
+.edit-form button:hover {
+  background-color: #c0392b;
+  transform: translateY(-3px);
+}
+
+.edit-form button[type="button"] {
+  background-color: #3498db;
+  margin-left: 12px;
+}
+
+.edit-form button[type="button"]:hover {
+  background-color: #2980b9;
+}
+
+/* Add some space between buttons */
+button:not(:last-child) {
+  margin-right: 15px;
+}
+
+/* Image styling */
+.listing-item img {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .listing-container {
+    padding: 15px;
   }
-  
-  /* Container */
-  div {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+
+  .listing-item {
+    padding: 15px;
   }
-  
-  /* Header */
-  h2 {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 30px;
+
+  .listing-item h3 {
+    font-size: 1.5rem;
   }
-  
-  /* Listings List */
-  ul {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  /* Listing Card */
-  li {
-    background-color: #d8f0b3;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    padding: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  li:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Title */
-  h3 {
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: #2c3e50;
-    margin: 0;
-    padding-bottom: 10px;
-  }
-  
-  /* Listing Info */
-  p {
-    font-size: 1rem;
-    color: #7f8c8d;
-    margin: 5px 0;
-  }
-  
-  strong {
-    color: #34495e;
-  }
-  
-  /* Price */
-  p strong + span {
-    font-size: 1.2rem;
-    color: #e74c3c;
-    font-weight: bold;
-  }
-  
-  /* Status - Sold */
-  .sold {
-    color: #2ecc71;
-    font-weight: bold;
-  }
-  
-  /* Image */
-  img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-top: 15px;
-  }
-  
-  /* Button Group */
-  button {
-    background-color: #3498db;
-    color: #867474;
-    border: none;
+
+  .listing-item button {
     padding: 10px 20px;
     font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-right: 10px;
-    margin-top: 10px;
-    display: inline-block;
   }
-  
-  button:hover {
-    background-color: #2980b9;
-    transform: translateY(-3px);
-  }
-  
-  /* Disabled Button */
-  button:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-  }
-  
-  /* Edit Form */
-  form {
-    background-color: #fff;
+
+  .edit-form {
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
   }
-  
-  form h3 {
-    font-size: 1.8rem;
-    color: #2c3e50;
-    margin-bottom: 20px;
+
+  .edit-form input, .edit-form textarea {
+    padding: 12px;
   }
-  
-  form label {
-    font-size: 1rem;
-    color: #34495e;
-    margin-bottom: 5px;
-  }
-  
-  form input,
-  form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    font-size: 1rem;
-    color: #34495e;
-  }
-  
-  form textarea {
-    height: 100px;
-    resize: none;
-  }
-  
-  form button {
-    background-color: #2ecc71;
-    font-size: 1.1rem;
-  }
-  
-  form button:hover {
-    background-color: #27ae60;
-  }
-  
-  form button[type="button"] {
-    background-color: #e74c3c;
-    margin-left: 10px;
-  }
-  
-  form button[type="button"]:hover {
-    background-color: #c0392b;
-  }
-  
-  /* Small Devices */
-  @media (max-width: 768px) {
-    li {
-      padding: 15px;
-    }
-  
-    button {
-      padding: 8px 16px;
-      font-size: 0.9rem;
-    }
-  
-    form {
-      padding: 15px;
-    }
-  }
-  
+}
