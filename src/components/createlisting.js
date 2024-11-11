@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addDoc, collection } from "firebase/firestore";
-import { db } from "../firebaseconfig.js"; // Adjust the path if needed
+import { db, auth } from "../firebaseconfig.js"; // Import auth for accessing current user
 import { fetchListingsStart, fetchListingsSuccess } from "../Redux/slices/listingslices.js";
 
 // Define categories array (30 predefined categories)
@@ -42,14 +42,14 @@ const CreateListing = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState(""); // New category state
-  const [imageFile, setImageFile] = useState(null); // Handle image file state
+  const [category, setCategory] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const dispatch = useDispatch();
 
-  // Handle image file change (image upload)
+  // Handle image file change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -57,6 +57,7 @@ const CreateListing = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -89,23 +90,33 @@ const CreateListing = () => {
       // Convert image to Base64 string
       const base64Image = await convertImageToBase64(imageFile);
 
-      // Prepare the new listing object with Base64 image
+      // Get current user's UID
+      const user = auth.currentUser;
+      if (!user) {
+        setError("You must be logged in to create a listing.");
+        setLoading(false);
+        return;
+      }
+
+      // Prepare the new listing object with userId and imageBase64
       const newListing = {
         title,
         description,
         price: parseFloat(price),
         category,
-        imageBase64: base64Image, // Store the Base64 image string here
+        imageBase64: base64Image,
+        userId: user.uid, // Store user's UID
+        createdAt: new Date(), // Optional: Store creation timestamp
       };
 
-      // Add the listing to Firestore
+      // Add the new listing to Firestore
       await addDoc(collection(db, "Listings"), newListing);
 
-      // Dispatch action to update the Redux store
+      // Dispatch action to update Redux store
       dispatch(fetchListingsStart());
       dispatch(fetchListingsSuccess([newListing]));
 
-      // Reset the form and state
+      // Reset form and state
       setLoading(false);
       setTitle("");
       setDescription("");

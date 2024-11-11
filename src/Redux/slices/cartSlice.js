@@ -1,31 +1,39 @@
-// src/Redux/slices/cartSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
+// Initial state for the cart
 const initialState = {
   items: [],
+  totalPrice: 0
 };
 
+// Cart slice with actions and reducer
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
-      if (existingItem) {
-        existingItem.quantity += 1;  // Increment quantity if item is already in cart
-      } else {
-        state.items.push({ ...action.payload, quantity: 1 });  // Add new item to cart
-      }
+      const item = action.payload;
+      state.items.push(item);
+      state.totalPrice += item.price * item.quantity;
     },
     removeFromCart: (state, action) => {
-      state.items = state.items.filter(item => item.id !== action.payload.id);
+      const id = action.payload;
+      const itemIndex = state.items.findIndex(item => item.id === id);
+      if (itemIndex !== -1) {
+        const item = state.items[itemIndex];
+        state.items.splice(itemIndex, 1);
+        state.totalPrice -= item.price * item.quantity;
+      }
     },
     clearCart: (state) => {
       state.items = [];
-    },
-  },
+      state.totalPrice = 0;
+    }
+  }
 });
 
-export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
+// Selectors (you can create memoized selectors with createSelector if needed)
+export const selectCartItemsMemoized = (state) => state.cart; // This selects the cart slice from the state
 
+export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

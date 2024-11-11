@@ -1,5 +1,3 @@
-// src/components/listingList.js
-
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../Redux/CartActions.js"; // Import your addToCart action
@@ -84,7 +82,7 @@ const ListingList = () => {
       });
 
       dispatch(fetchListingsStart());
-      setEditMode(null);
+      setEditMode(null);  // Reset the edit mode
       alert("Listing updated successfully.");
     } catch (error) {
       alert(`Error updating listing: ${error.message}`);

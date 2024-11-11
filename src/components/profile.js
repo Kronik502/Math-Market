@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebaseconfig.js';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const ProfilePage = () => {
   const [userDetails, setUserDetails] = useState(null);
@@ -15,18 +15,24 @@ const ProfilePage = () => {
     dob: '',
     gender: '',
     photoURL: null, 
+    userId: '', // Initialize userId here
   });
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       const user = auth.currentUser;
       if (user) {
-        const userDocRef = doc(db, 'users', user.uid); // 'users' collection in Firestore
+        const userDocRef = doc(db, 'users', user.uid); // Firestore 'users' collection
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
-          setUserDetails(userDocSnap.data());
-          setFormData(userDocSnap.data()); // Set formData with Firestore data
+          // Fetch user details from Firestore and set them in the state
+          const userData = userDocSnap.data();
+          setUserDetails(userData);
+          setFormData({
+            ...userData,
+            userId: user.uid, // Ensure userId is assigned correctly
+          });
         } else {
           console.log('No user profile found in Firestore');
         }
@@ -72,7 +78,9 @@ const ProfilePage = () => {
       const userRef = doc(db, 'users', user.uid);
 
       try {
-        await updateDoc(userRef, formData);
+        // Include userId when updating the profile to match the Firestore security rules
+        const updatedData = { ...formData, userId: user.uid };
+        await setDoc(userRef, updatedData);
         alert('Profile updated successfully!');
         setIsEditing(false);
         setLoading(false);

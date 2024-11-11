@@ -1,13 +1,11 @@
-// src/index.js
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import store from './Redux/store.js'; // Ensure you have the correct path
-import App from './App.js'; // Your main App component
+import store from './Redux/store.js';  // Assuming you have a store file
+import App from './App.js';      // Assuming you have an App component
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+// Render the app to the DOM
+ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <App />
   </Provider>

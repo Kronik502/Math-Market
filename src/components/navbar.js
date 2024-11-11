@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebaseconfig.js'; // Ensure this is correct
+import { auth, db } from '../firebaseconfig.js';
 import { doc, getDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import '../Css/navbar.css';
 
 const Navbar = ({ openSignupModal, openLoginModal }) => {
@@ -13,13 +13,13 @@ const Navbar = ({ openSignupModal, openLoginModal }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userDetails, setUserDetails] = useState({ fullName: 'User', photoURL: null });
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch user data from Firestore when component mounts
   useEffect(() => {
-    const fetchUserData = async () => {
-      const user = auth.currentUser;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        setIsLoggedIn(true);
         try {
           const userDocRef = doc(db, 'users', user.uid);
           const userDocSnap = await getDoc(userDocRef);
@@ -29,23 +29,25 @@ const Navbar = ({ openSignupModal, openLoginModal }) => {
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
+      } else {
+        setIsLoggedIn(false);
+        setUserDetails({ fullName: 'User', photoURL: null });
       }
-      setLoading(false); // After loading, stop showing the loading state
-    };
+      setLoading(false);
+    });
 
-    fetchUserData();
+    return () => unsubscribe();
   }, []);
 
-  // Toggle dropdown visibility
   const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev);
+    setIsDropdownOpen((prev) => !prev); // Toggle dropdown visibility state
   };
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
       setUserDetails({ fullName: 'User', photoURL: null });
+      setIsLoggedIn(false);
       navigate('/login');
       alert('Logged out successfully!');
     } catch (error) {
@@ -53,6 +55,20 @@ const Navbar = ({ openSignupModal, openLoginModal }) => {
       alert('Error logging out!');
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        !event.target.closest('.profile-dropdown') &&
+        !event.target.closest('.user-info') // Close dropdown if click is outside
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   return (
     <nav className="navbar">
@@ -65,72 +81,45 @@ const Navbar = ({ openSignupModal, openLoginModal }) => {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/listings">Listings</Link></li>
             <li><Link to="/contact">Contact</Link></li>
-            <li>
-              <Link to="/cart">
-                <span>Cart</span>
-                {itemCount > 0 && <span>{itemCount}</span>}
-              </Link>
-            </li>
+            <li><Link to="/cart">
+              <span>Cart</span>
+              {itemCount > 0 && <span>{itemCount}</span>}
+            </Link></li>
 
-            {/* Conditionally render the Profile/Logout or Login/Signup buttons */}
-            {auth.currentUser ? (
-              // If the user is logged in, show their profile picture and dropdown
-              <li>
-                <span onClick={toggleDropdown} style={{ cursor: 'pointer' }}>
+            {isLoggedIn ? (
+              <li className="user-info">
+                <button
+                  onClick={toggleDropdown} // Toggle the dropdown visibility
+                  className="profile-button"
+                  aria-haspopup="true"
+                  aria-expanded={isDropdownOpen ? 'true' : 'false'}
+                >
                   {loading ? (
-                    <div className="loading-placeholder">Loading...</div>
+                    <div className="loading-placeholder"></div> // CSS Spinner for loading state
                   ) : (
                     <>
-                      <img 
-                        src={userDetails.photoURL || 'default-avatar.png'} 
-                        alt="Profile" 
-                        style={{ width: 30, height: 30, borderRadius: '50%' }}
+                      <img
+                        src={userDetails.photoURL || 'default-avatar.png'}
+                        alt="Profile"
+                        className="profile-img"
                       />
                       <span>Hi, {userDetails.fullName}</span>
                     </>
                   )}
-                </span>
-                {isDropdownOpen && (
-                  <div className="profile-dropdown">
-                    <ul>
-                      <li><Link to="/profile">View Profile</Link></li>
-                      <li><Link to="/my-listings">My Listings</Link></li>
-                      <li><Link to="/create">Create Listing</Link></li>
-                      <li><button onClick={handleLogout}>Logout</button></li>
-                    </ul>
-                  </div>
-                )}
+                </button>
+                <div className={`profile-dropdown ${isDropdownOpen ? 'show' : ''}`}>
+                  <ul>
+                    <li><Link to="/profile">View Profile</Link></li>
+                    <li><Link to="/my-listings">My Listings</Link></li>
+                    <li><Link to="/create">Create Listing</Link></li>
+                    <li><button onClick={handleLogout}>Logout</button></li>
+                  </ul>
+                </div>
               </li>
             ) : (
-              // If the user is logged out, show Login and Signup buttons
               <li>
-                <button 
-                  onClick={openLoginModal} 
-                  style={{
-                    color: '#fff',
-                    border: '1px solid #fff',
-                    padding: '8px 15px',
-                    cursor: 'pointer',
-                    background: 'transparent',
-                    borderRadius: '4px',
-                    marginRight: '10px',
-                  }}
-                >
-                  Login
-                </button>
-                <button 
-                  onClick={openSignupModal} 
-                  style={{
-                    color: '#fff',
-                    border: '1px solid #fff',
-                    padding: '8px 15px',
-                    cursor: 'pointer',
-                    background: 'transparent',
-                    borderRadius: '4px',
-                  }}
-                >
-                  Signup
-                </button>
+                <button onClick={openLoginModal} style={buttonStyle} aria-label="Login">Login</button>
+                <button onClick={openSignupModal} style={buttonStyle} aria-label="Signup">Signup</button>
               </li>
             )}
           </ul>
@@ -138,6 +127,16 @@ const Navbar = ({ openSignupModal, openLoginModal }) => {
       </div>
     </nav>
   );
+};
+
+const buttonStyle = {
+  color: '#fff',
+  border: '1px solid #fff',
+  padding: '8px 15px',
+  cursor: 'pointer',
+  background: 'transparent',
+  borderRadius: '4px',
+  marginRight: '10px',
 };
 
 export default Navbar;
